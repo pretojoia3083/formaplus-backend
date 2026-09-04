@@ -1,0 +1,140 @@
+from app.schemas.user import (
+    UserCreate,
+    UserResponse,
+    UserUpdate,
+    LoginRequest,
+    Token,
+    TokenData,
+)
+from app.schemas.profile import ProfileCreate, ProfileUpdate, ProfileResponse
+from app.schemas.goal import GoalCreate, GoalUpdate, GoalResponse
+from app.schemas.preference import PreferenceCreate, PreferenceUpdate, PreferenceResponse
+from app.schemas.workout import (
+    ExerciseResponse,
+    WorkoutPlanCreate,
+    WorkoutPlanResponse,
+    WorkoutSessionResponse,
+    SessionExerciseResponse,
+    ExerciseLogCreate,
+    ExerciseLogResponse,
+    WorkoutGenerationRequest,
+    WorkoutGenerationResponse,
+    WorkoutAdaptationRequest,
+    WorkoutAdaptationResponse,
+    ExerciseSubstitutionRequest,
+    ExerciseSubstitutionResponse,
+)
+from app.schemas.nutrition import (
+    FoodResponse,
+    RecipeResponse,
+    MealPlanCreate,
+    MealPlanResponse,
+    MealResponse,
+    MealItemResponse,
+    MealLogCreate,
+    MealLogResponse,
+    MealPlanGenerationRequest,
+    MealPlanGenerationResponse,
+)
+from app.schemas.progress import (
+    WeightLogCreate,
+    WeightLogResponse,
+    MeasurementCreate,
+    MeasurementResponse,
+    WaterLogCreate,
+    WaterLogResponse,
+    StepLogCreate,
+    StepLogResponse,
+    ProgressSummaryRequest,
+    ProgressSummaryResponse,
+)
+from app.schemas.ai import (
+    ConversationCreate,
+    ConversationResponse,
+    MessageCreate,
+    MessageResponse,
+    CoachRequest,
+    CoachResponse,
+    RiskClassificationRequest,
+    RiskClassificationResponse,
+)
+from app.schemas.subscription import (
+    SubscriptionCreate,
+    SubscriptionResponse,
+    PaymentCreate,
+    PaymentResponse,
+    SubscriptionPlan,
+)
+
+__all__ = [
+    # User
+    "UserCreate",
+    "UserResponse",
+    "UserUpdate",
+    "LoginRequest",
+    "Token",
+    "TokenData",
+    # Profile
+    "ProfileCreate",
+    "ProfileUpdate",
+    "ProfileResponse",
+    # Goal
+    "GoalCreate",
+    "GoalUpdate",
+    "GoalResponse",
+    # Preference
+    "PreferenceCreate",
+    "PreferenceUpdate",
+    "PreferenceResponse",
+    # Workout
+    "ExerciseResponse",
+    "WorkoutPlanCreate",
+    "WorkoutPlanResponse",
+    "WorkoutSessionResponse",
+    "SessionExerciseResponse",
+    "ExerciseLogCreate",
+    "ExerciseLogResponse",
+    "WorkoutGenerationRequest",
+    "WorkoutGenerationResponse",
+    "WorkoutAdaptationRequest",
+    "WorkoutAdaptationResponse",
+    "ExerciseSubstitutionRequest",
+    "ExerciseSubstitutionResponse",
+    # Nutrition
+    "FoodResponse",
+    "RecipeResponse",
+    "MealPlanCreate",
+    "MealPlanResponse",
+    "MealResponse",
+    "MealItemResponse",
+    "MealLogCreate",
+    "MealLogResponse",
+    "MealPlanGenerationRequest",
+    "MealPlanGenerationResponse",
+    # Progress
+    "WeightLogCreate",
+    "WeightLogResponse",
+    "MeasurementCreate",
+    "MeasurementResponse",
+    "WaterLogCreate",
+    "WaterLogResponse",
+    "StepLogCreate",
+    "StepLogResponse",
+    "ProgressSummaryRequest",
+    "ProgressSummaryResponse",
+    # AI
+    "ConversationCreate",
+    "ConversationResponse",
+    "MessageCreate",
+    "MessageResponse",
+    "CoachRequest",
+    "CoachResponse",
+    "RiskClassificationRequest",
+    "RiskClassificationResponse",
+    # Subscription
+    "SubscriptionCreate",
+    "SubscriptionResponse",
+    "PaymentCreate",
+    "PaymentResponse",
+    "SubscriptionPlan",
+]
