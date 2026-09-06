@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.core.database import engine, Base
+from app.core.database import engine, Base, SessionLocal
 from app.api.v1 import router as v1_router
 import sentry_sdk
 
@@ -17,6 +17,15 @@ import app.models  # noqa
 
 # Create tables
 Base.metadata.create_all(bind=engine)
+
+# Seed database
+from app.services.seed import seed_exercises, seed_foods
+db = SessionLocal()
+try:
+    seed_exercises(db)
+    seed_foods(db)
+finally:
+    db.close()
 
 app = FastAPI(
     title=settings.APP_NAME,
