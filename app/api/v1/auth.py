@@ -26,6 +26,8 @@ async def register(user_data: UserCreate, db: Session = Depends(get_db)):
         new_user = User(
             email=user_data.email,
             password_hash=hashed_password,
+            first_name=user_data.first_name,
+            last_name=user_data.last_name,
             plan_type=PlanType.FREE,
             status=UserStatus.ACTIVE
         )
@@ -88,7 +90,16 @@ async def login_json(login_data: LoginRequest, db: Session = Depends(get_db)):
         data={"sub": str(user.id), "email": user.email}
     )
     
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+        }
+    }
 
 @router.post("/refresh", response_model=Token)
 async def refresh_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):

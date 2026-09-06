@@ -6,6 +6,8 @@ from app.models.user import PlanType, UserStatus
 class UserCreate(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=6)
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     
     @validator('password')
     def validate_password(cls, v):
@@ -22,6 +24,8 @@ class UserUpdate(BaseModel):
 class UserResponse(BaseModel):
     id: int
     email: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     plan_type: PlanType
     status: UserStatus
     created_at: datetime
