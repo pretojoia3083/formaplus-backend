@@ -14,7 +14,7 @@ def seed_exercises(db: Session):
         {"name": "Supino Inclinado com Halteres", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.DUMBBELL, "difficulty": Difficulty.INTERMEDIATE, "instructions": "No banco inclinado, desça halteres até o peito e estenda."},
         {"name": "Crucifixo com Halteres", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.DUMBBELL, "difficulty": Difficulty.BEGINNER, "instructions": "Deite, abra os braços em arco e feche sobre o peito."},
         {"name": "Crossover", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.CABLE, "difficulty": Difficulty.INTERMEDIATE, "instructions": "Em pé entre os cabos, junte as mãos à frente do peito."},
-        {"name": "Flexão de Braço", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.BODYWEIGHT, "difficulty": Difficulty.BEGINNER, "instructions": "Em prancha, desça o peito até o chão e suba."},
+        {"name": "Flexão de Braço", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.BODYWEIGHT, "difficulty": Difficulty.BEGINNER, "instructions": "Em prancha, desça o peito até o chão e suba. Exercício caseiro, sem equipamento."},
         {"name": "Supino Máquina", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.MACHINE, "difficulty": Difficulty.BEGINNER, "instructions": "Sente na máquina, empurre as alças à frente."},
         
         # COSTAS
