@@ -101,6 +101,35 @@ async def login_json(login_data: LoginRequest, db: Session = Depends(get_db)):
         }
     }
 
+@router.post("/reset-account")
+async def reset_account(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    user_id = int(payload.get("sub"))
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    from app.models.workout import WorkoutPlan, WorkoutSession, SessionExercise, ExerciseLog
+    from app.models.nutrition import MealPlan, Meal, MealItem, MealLog
+    from app.models.progress import WeightLog, Measurement, WaterLog, StepLog
+    from app.models.ai import AIConversation, AIMessage
+    from app.models.profile import Profile
+    from app.models.goal import Goal
+    from app.models.preference import Preference
+    
+    for model in [ExerciseLog, SessionExercise, WorkoutSession, WorkoutPlan,
+                  MealLog, MealItem, Meal, MealPlan,
+                  WeightLog, Measurement, WaterLog, StepLog,
+                  AIMessage, AIConversation,
+                  Profile, Goal, Preference]:
+        db.query(model).filter(model.user_id == user_id).delete(synchronize_session=False)
+    
+    db.commit()
+    return {"detail": "Account data reset successfully"}
+
 @router.post("/refresh", response_model=Token)
 async def refresh_token(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decode_access_token(token)
