@@ -225,61 +225,69 @@ async def delete_account(
         raise HTTPException(status_code=404, detail="User not found")
     
     try:
-        from app.models.workout import WorkoutPlan, WorkoutSession, SessionExercise, ExerciseLog
-        from app.models.nutrition import MealPlan, Meal, MealItem, MealLog
-        from app.models.progress import WeightLog, Measurement, WaterLog, StepLog
-        from app.models.ai import AIConversation, AIMessage
-        from app.models.profile import Profile
-        from app.models.goal import Goal
-        from app.models.preference import Preference
-        from app.models.subscription import Subscription, Payment
-        
-        db.query(Payment).filter(Payment.subscription_id.in_(
-            db.query(Subscription.id).filter(Subscription.user_id == user_id)
-        )).delete(synchronize_session=False)
-        
-        db.query(Subscription).filter(Subscription.user_id == user_id).delete(synchronize_session=False)
-        db.query(ExerciseLog).filter(ExerciseLog.user_id == user_id).delete(synchronize_session=False)
-        
-        for se in db.query(SessionExercise).join(
-            WorkoutSession, SessionExercise.workout_session_id == WorkoutSession.id
-        ).join(
-            WorkoutPlan, WorkoutSession.workout_plan_id == WorkoutPlan.id
-        ).filter(WorkoutPlan.user_id == user_id).all():
-            db.delete(se)
-        
-        db.query(WorkoutSession).filter(WorkoutSession.workout_plan_id.in_(
-            db.query(WorkoutPlan.id).filter(WorkoutPlan.user_id == user_id)
-        )).delete(synchronize_session=False)
-        db.query(WorkoutPlan).filter(WorkoutPlan.user_id == user_id).delete(synchronize_session=False)
-        
-        db.query(MealLog).filter(MealLog.user_id == user_id).delete(synchronize_session=False)
-        db.query(MealItem).filter(MealItem.meal_id.in_(
-            db.query(Meal.id).join(MealPlan, Meal.meal_plan_id == MealPlan.id).filter(MealPlan.user_id == user_id)
-        )).delete(synchronize_session=False)
-        db.query(Meal).filter(Meal.meal_plan_id.in_(
-            db.query(MealPlan.id).filter(MealPlan.user_id == user_id)
-        )).delete(synchronize_session=False)
-        db.query(MealPlan).filter(MealPlan.user_id == user_id).delete(synchronize_session=False)
-        
-        db.query(WeightLog).filter(WeightLog.user_id == user_id).delete(synchronize_session=False)
-        db.query(Measurement).filter(Measurement.user_id == user_id).delete(synchronize_session=False)
-        db.query(WaterLog).filter(WaterLog.user_id == user_id).delete(synchronize_session=False)
-        db.query(StepLog).filter(StepLog.user_id == user_id).delete(synchronize_session=False)
-        db.query(AIMessage).filter(AIMessage.conversation_id.in_(
-            db.query(AIConversation.id).filter(AIConversation.user_id == user_id)
-        )).delete(synchronize_session=False)
-        db.query(AIConversation).filter(AIConversation.user_id == user_id).delete(synchronize_session=False)
-        db.query(Profile).filter(Profile.user_id == user_id).delete(synchronize_session=False)
-        db.query(Goal).filter(Goal.user_id == user_id).delete(synchronize_session=False)
-        db.query(Preference).filter(Preference.user_id == user_id).delete(synchronize_session=False)
-        
-        db.delete(user)
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM exercise_logs WHERE session_exercise_id IN (SELECT id FROM session_exercises WHERE workout_session_id IN (SELECT id FROM workout_sessions WHERE workout_plan_id IN (SELECT id FROM workout_plans WHERE user_id = :uid)))")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM session_exercises WHERE workout_session_id IN (SELECT id FROM workout_sessions WHERE workout_plan_id IN (SELECT id FROM workout_plans WHERE user_id = :uid)))")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM workout_sessions WHERE workout_plan_id IN (SELECT id FROM workout_plans WHERE user_id = :uid))")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM workout_plans WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM meal_items WHERE meal_id IN (SELECT id FROM meals WHERE meal_plan_id IN (SELECT id FROM meal_plans WHERE user_id = :uid)))")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM meal_logs WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM meals WHERE meal_plan_id IN (SELECT id FROM meal_plans WHERE user_id = :uid))")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM meal_plans WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM weight_logs WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM measurements WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM water_logs WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM step_logs WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM ai_messages WHERE conversation_id IN (SELECT id FROM ai_conversations WHERE user_id = :uid))")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM ai_conversations WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM profiles WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM goals WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM preferences WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM payments WHERE subscription_id IN (SELECT id FROM subscriptions WHERE user_id = :uid))")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM subscriptions WHERE user_id = :uid")
+        , {"uid": user_id})
+        db.execute(
+            __import__('sqlalchemy').text("DELETE FROM users WHERE id = :uid")
+        , {"uid": user_id})
         db.commit()
     except Exception as e:
         db.rollback()
-        import logging
-        logging.error(f"Delete account error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     
     return {"detail": "Conta excluída com sucesso"}
