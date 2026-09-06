@@ -8,14 +8,14 @@ def seed_exercises(db: Session):
     
     exercises = [
         # PEITO
-        {"name": "Supino Reto com Barra", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.BARBELL, "difficulty": Difficulty.INTERMEDIATE, "instructions": "Deite no banco, segure a barra, desça até o peito e estenda."},
-        {"name": "Supino Reto com Halteres", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.DUMBBELL, "difficulty": Difficulty.INTERMEDIATE, "instructions": "Deite no banco, segure halteres, desça até o peito e estenda."},
-        {"name": "Supino Inclinado com Barra", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.BARBELL, "difficulty": Difficulty.INTERMEDIATE, "instructions": "No banco inclinado, desça a barra até o peito superior e estenda."},
-        {"name": "Supino Inclinado com Halteres", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.DUMBBELL, "difficulty": Difficulty.INTERMEDIATE, "instructions": "No banco inclinado, desça halteres até o peito e estenda."},
-        {"name": "Crucifixo com Halteres", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.DUMBBELL, "difficulty": Difficulty.BEGINNER, "instructions": "Deite, abra os braços em arco e feche sobre o peito."},
+        {"name": "Supino Reto com Barra", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.BARBELL, "difficulty": Difficulty.INTERMEDIATE, "instructions": "Deite no banco, segure a barra com pegada pronada, desça até o peito e estenda os braços."},
+        {"name": "Supino Reto com Halteres", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.DUMBBELL, "difficulty": Difficulty.INTERMEDIATE, "instructions": "Deite no banco, segure um halter em cada mão, desça até o peito e estenda."},
+        {"name": "Supino Inclinado com Barra", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.BARBELL, "difficulty": Difficulty.INTERMEDIATE, "instructions": "Banco a 45°, desça a barra até o peito superior e estenda."},
+        {"name": "Supino Inclinado com Halteres", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.DUMBBELL, "difficulty": Difficulty.INTERMEDIATE, "instructions": "Banco a 45°, desça halteres até o peito e estenda."},
+        {"name": "Crucifixo com Halteres", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.DUMBBELL, "difficulty": Difficulty.BEGINNER, "instructions": "Deite no banco, abra os braços em arco e feche sobre o peito."},
         {"name": "Crossover", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.CABLE, "difficulty": Difficulty.INTERMEDIATE, "instructions": "Em pé entre os cabos, junte as mãos à frente do peito."},
-        {"name": "Flexão de Braço", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.BODYWEIGHT, "difficulty": Difficulty.BEGINNER, "instructions": "Em prancha, desça o peito até o chão e suba. Exercício caseiro, sem equipamento."},
-        {"name": "Supino Máquina", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.MACHINE, "difficulty": Difficulty.BEGINNER, "instructions": "Sente na máquina, empurre as alças à frente."},
+        {"name": "Flexão de Braço", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.BODYWEIGHT, "difficulty": Difficulty.BEGINNER, "instructions": "Em prancha no chão, desça o peito até pertear o chão e suba. Sem equipamento."},
+        {"name": "Supino Máquina", "muscle_group": MuscleGroup.CHEST, "equipment": Equipment.MACHINE, "difficulty": Difficulty.BEGINNER, "instructions": "Sente na máquina, empurre as alças à frente e volte devagar."},
         
         # COSTAS
         {"name": "Puxada na Frente", "muscle_group": MuscleGroup.BACK, "equipment": Equipment.MACHINE, "difficulty": Difficulty.INTERMEDIATE, "instructions": "Sente na máquina, puxe a barra até o peito."},
