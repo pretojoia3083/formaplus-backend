@@ -3,7 +3,7 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "sqlite:///./formaplus.db"
+    DATABASE_URL: str = "postgresql://formaplus_front_user:BdhZG592UiIC1S0f4plsjp7LAKH6Zy5m@dpg-dae4vpgu01pc73d4du5g-a/formaplus_front"
     
     # Security
     SECRET_KEY: str = "change-me-in-production"
