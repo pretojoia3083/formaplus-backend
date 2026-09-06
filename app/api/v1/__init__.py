@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1 import auth, coach, workouts, nutrition, progress, subscriptions, professionals, trainer, chat
+from app.api.v1 import auth, coach, workouts, nutrition, progress, subscriptions, professionals, trainer, chat, admin
 
 router = APIRouter()
 
@@ -12,3 +12,4 @@ router.include_router(subscriptions.router, prefix="", tags=["subscriptions"])
 router.include_router(professionals.router, prefix="/professionals", tags=["professionals"])
 router.include_router(trainer.router, prefix="/trainer", tags=["trainer"])
 router.include_router(chat.router, prefix="/chat", tags=["chat"])
+router.include_router(admin.router, prefix="/admin", tags=["admin"])
