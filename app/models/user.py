@@ -40,3 +40,4 @@ class User(Base):
     subscriptions = relationship("Subscription", back_populates="user")
     meal_logs = relationship("MealLog", back_populates="user")
     professional_profile = relationship("Professional", back_populates="user", uselist=False)
+    trainer_profile = relationship("Trainer", back_populates="user", uselist=False)

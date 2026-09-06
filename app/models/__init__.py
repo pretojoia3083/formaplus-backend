@@ -12,6 +12,7 @@ from app.models.professional import (
     Professional, ProfessionalService, ProfessionalAvailability,
     ProfessionalSession, ProfessionalReview
 )
+from app.models.trainer import Trainer, TrainerClient, ChatMessage
 
 __all__ = [
     "User",
@@ -42,4 +43,7 @@ __all__ = [
     "ProfessionalAvailability",
     "ProfessionalSession",
     "ProfessionalReview",
+    "Trainer",
+    "TrainerClient",
+    "ChatMessage",
 ]
