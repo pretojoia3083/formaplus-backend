@@ -14,9 +14,9 @@ from app.models.workout import (
 )
 from app.models.exercise import Exercise
 from app.models.user import User
-from app.models.goal import Goal
+from app.models.goal import Goal, GoalType
 from app.models.preference import Preference
-from app.models.profile import Profile
+from app.models.profile import Profile, ExperienceLevel
 from app.services.ai_engine import AIEngine
 
 logger = logging.getLogger(__name__)
@@ -37,8 +37,20 @@ class WorkoutService:
         goal = db.query(Goal).filter(Goal.user_id == user_id).first()
         preferences = db.query(Preference).filter(Preference.user_id == user_id).first()
         
-        if not goal or not preferences:
-            raise ValueError("Dados de perfil incompletos. Complete o onboarding.")
+        if not goal:
+            goal = Goal(user_id=user_id, goal_type=GoalType.GAIN_MUSCLE)
+            db.add(goal)
+            db.flush()
+        if not preferences:
+            preferences = Preference(user_id=user_id, training_days_per_week=3, session_duration_min=45)
+            db.add(preferences)
+            db.flush()
+        
+        profile = db.query(Profile).filter(Profile.user_id == user_id).first()
+        if not profile:
+            profile = Profile(user_id=user_id, experience_level=ExperienceLevel.BEGINNER)
+            db.add(profile)
+            db.flush()
         
         exercises = db.query(Exercise).all()
         available_exercises = [
