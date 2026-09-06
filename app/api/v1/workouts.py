@@ -248,3 +248,24 @@ async def get_workout_history(
     ).offset(offset).limit(limit).all()
     
     return {"total": len(logs), "sessions": logs}
+
+@router.delete("/workouts/delete")
+async def delete_workout_plan(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    plan = db.query(WorkoutPlan).filter(
+        WorkoutPlan.user_id == current_user.id,
+        WorkoutPlan.status == WorkoutPlanStatus.ACTIVE
+    ).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Nenhum plano ativo encontrado")
+    
+    sessions = db.query(WorkoutSession).filter(WorkoutSession.workout_plan_id == plan.id).all()
+    for s in sessions:
+        db.query(SessionExercise).filter(SessionExercise.workout_session_id == s.id).delete()
+        db.delete(s)
+    
+    db.delete(plan)
+    db.commit()
+    return {"detail": "Plano de treino excluído com sucesso"}

@@ -181,3 +181,23 @@ async def get_meal_history(
     ).offset(offset).limit(limit).all()
     
     return {"total": len(logs), "logs": logs}
+
+@router.delete("/nutrition/delete")
+async def delete_meal_plan(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    plan = db.query(MealPlan).filter(
+        MealPlan.user_id == current_user.id
+    ).order_by(MealPlan.created_at.desc()).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Nenhum plano alimentar encontrado")
+    
+    meals = db.query(Meal).filter(Meal.meal_plan_id == plan.id).all()
+    for m in meals:
+        db.query(MealItem).filter(MealItem.meal_id == m.id).delete()
+        db.delete(m)
+    
+    db.delete(plan)
+    db.commit()
+    return {"detail": "Plano alimentar excluído com sucesso"}
