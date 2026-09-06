@@ -111,7 +111,9 @@ class NutritionService:
         
         day_mapping = {
             "Monday": 0, "Tuesday": 1, "Wednesday": 2,
-            "Thursday": 3, "Friday": 4, "Saturday": 5, "Sunday": 6
+            "Thursday": 3, "Friday": 4, "Saturday": 5, "Sunday": 6,
+            "Segunda": 0, "Terça": 1, "Quarta": 2,
+            "Quinta": 3, "Sexta": 4, "Sábado": 5, "Domingo": 6,
         }
         
         for meal_data in ai_result.get("meals", []):
@@ -228,8 +230,6 @@ class NutritionService:
         ).filter(
             MealPlan.user_id == user_id
         ).order_by(MealPlan.created_at.desc()).first()
-        if plan:
-            db.expire_all()
         return plan
     
     def get_today_meals(

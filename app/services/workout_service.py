@@ -103,7 +103,9 @@ class WorkoutService:
         
         day_mapping = {
             "Monday": 0, "Tuesday": 1, "Wednesday": 2,
-            "Thursday": 3, "Friday": 4, "Saturday": 5, "Sunday": 6
+            "Thursday": 3, "Friday": 4, "Saturday": 5, "Sunday": 6,
+            "Segunda": 0, "Terça": 1, "Quarta": 2,
+            "Quinta": 3, "Sexta": 4, "Sábado": 5, "Domingo": 6,
         }
         
         for day_data in ai_result.get("workout", []):
@@ -163,8 +165,6 @@ class WorkoutService:
             WorkoutPlan.user_id == user_id,
             WorkoutPlan.status == WorkoutPlanStatus.ACTIVE
         ).first()
-        if plan:
-            db.expire_all()
         return plan
     
     def get_today_workout(
@@ -172,8 +172,14 @@ class WorkoutService:
         db: Session,
         user_id: int
     ) -> Optional[WorkoutSession]:
-        today_name = datetime.now().strftime("%A")
+        today_name_en = datetime.now().strftime("%A")
         today_date = datetime.now().date()
+        
+        name_to_pt = {
+            "Monday": "Segunda", "Tuesday": "Terça", "Wednesday": "Quarta",
+            "Thursday": "Quinta", "Friday": "Sexta", "Saturday": "Sábado", "Sunday": "Domingo"
+        }
+        today_name_pt = name_to_pt.get(today_name_en, today_name_en)
         
         active_plan = self.get_active_plan(db, user_id)
         if not active_plan:
@@ -181,7 +187,7 @@ class WorkoutService:
         
         session = db.query(WorkoutSession).filter(
             WorkoutSession.workout_plan_id == active_plan.id,
-            WorkoutSession.day_of_week == today_name,
+            WorkoutSession.day_of_week.in_([today_name_en, today_name_pt]),
             WorkoutSession.status.in_([WorkoutSessionStatus.PENDING, WorkoutSessionStatus.IN_PROGRESS])
         ).first()
         
