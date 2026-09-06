@@ -18,6 +18,7 @@ from app.models.goal import Goal, GoalType
 from app.models.preference import Preference
 from app.models.profile import Profile, ExperienceLevel
 from app.services.ai_engine import AIEngine
+from sqlalchemy.orm import joinedload
 
 logger = logging.getLogger(__name__)
 
@@ -156,10 +157,15 @@ class WorkoutService:
         db: Session,
         user_id: int
     ) -> Optional[WorkoutPlan]:
-        return db.query(WorkoutPlan).filter(
+        plan = db.query(WorkoutPlan).options(
+            joinedload(WorkoutPlan.sessions).joinedload(WorkoutSession.session_exercises).joinedload(SessionExercise.exercise)
+        ).filter(
             WorkoutPlan.user_id == user_id,
             WorkoutPlan.status == WorkoutPlanStatus.ACTIVE
         ).first()
+        if plan:
+            db.expire_all()
+        return plan
     
     def get_today_workout(
         self,

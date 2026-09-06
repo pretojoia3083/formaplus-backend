@@ -84,6 +84,7 @@ class MealItem(Base):
 
     # Relationships
     meal = relationship("Meal", back_populates="meal_items")
+    food = relationship("Food", primaryjoin="foreign(MealItem.food_id_or_recipe_id) == Food.id", viewonly=True)
 
 class MealLog(Base):
     __tablename__ = "meal_logs"

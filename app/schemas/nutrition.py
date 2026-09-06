@@ -33,6 +33,7 @@ class MealItemResponse(BaseModel):
     is_recipe: bool
     quantity_g: float
     order_index: int
+    food: Optional[FoodResponse] = None
     
     class Config:
         from_attributes = True

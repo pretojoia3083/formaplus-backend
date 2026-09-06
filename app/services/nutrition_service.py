@@ -17,6 +17,7 @@ from app.models.goal import Goal, GoalType
 from app.models.preference import Preference
 from app.models.profile import Profile, ExperienceLevel
 from app.services.ai_engine import AIEngine
+from sqlalchemy.orm import joinedload
 
 logger = logging.getLogger(__name__)
 
@@ -222,9 +223,14 @@ class NutritionService:
         db: Session,
         user_id: int
     ) -> Optional[MealPlan]:
-        return db.query(MealPlan).filter(
+        plan = db.query(MealPlan).options(
+            joinedload(MealPlan.meals).joinedload(Meal.meal_items)
+        ).filter(
             MealPlan.user_id == user_id
         ).order_by(MealPlan.created_at.desc()).first()
+        if plan:
+            db.expire_all()
+        return plan
     
     def get_today_meals(
         self,
