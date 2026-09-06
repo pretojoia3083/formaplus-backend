@@ -7,10 +7,90 @@ from typing import Optional
 from app.core.database import get_db
 from app.core.security import verify_password, get_password_hash, create_access_token, decode_access_token
 from app.models.user import User, UserStatus, PlanType
+from app.models.profile import Profile, Sex, ActivityLevel, ExperienceLevel
+from app.models.goal import Goal, GoalType
+from app.models.preference import Preference, Location
 from app.schemas.user import UserCreate, UserResponse, Token, LoginRequest
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+
+@router.get("/me")
+async def get_me(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    user_id = int(payload.get("sub"))
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    profile = db.query(Profile).filter(Profile.user_id == user_id).first()
+    goal = db.query(Goal).filter(Goal.user_id == user_id).first()
+    preference = db.query(Preference).filter(Preference.user_id == user_id).first()
+    
+    return {
+        "id": user.id,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "plan_type": user.plan_type.value if user.plan_type else "free",
+        "has_profile": profile is not None,
+        "has_goal": goal is not None,
+        "has_preference": preference is not None,
+        "onboarding_complete": profile is not None and goal is not None and preference is not None,
+    }
+
+@router.post("/onboarding")
+async def save_onboarding(
+    data: dict,
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+):
+    payload = decode_access_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    
+    user_id = int(payload.get("sub"))
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Save profile
+    profile = db.query(Profile).filter(Profile.user_id == user_id).first()
+    if not profile:
+        profile = Profile(user_id=user_id)
+        db.add(profile)
+    
+    profile.age = data.get("age")
+    profile.sex = data.get("sex", "male")
+    profile.height_cm = data.get("height_cm")
+    profile.weight_kg = data.get("weight_kg")
+    profile.activity_level = data.get("activity_level", "moderately_active")
+    profile.experience_level = data.get("experience_level", "beginner")
+    
+    # Save goal
+    goal = db.query(Goal).filter(Goal.user_id == user_id).first()
+    if not goal:
+        goal = Goal(user_id=user_id)
+        db.add(goal)
+    
+    goal.goal_type = data.get("goal_type", "gain_muscle")
+    
+    # Save preference
+    preference = db.query(Preference).filter(Preference.user_id == user_id).first()
+    if not preference:
+        preference = Preference(user_id=user_id)
+        db.add(preference)
+    
+    preference.training_days_per_week = data.get("training_days_per_week", 3)
+    preference.session_duration_min = data.get("session_duration_min", 45)
+    preference.location = data.get("location", "gym")
+    
+    db.commit()
+    
+    return {"detail": "Onboarding complete!", "onboarding_complete": True}
 
 @router.post("/register", response_model=UserResponse)
 async def register(user_data: UserCreate, db: Session = Depends(get_db)):
