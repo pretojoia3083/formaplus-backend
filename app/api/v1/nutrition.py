@@ -1,57 +1,124 @@
-from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Optional, List
-from datetime import datetime
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, require_plan_type
 from app.models.user import User
-from app.models.nutrition import Meal, MealLog
-from app.schemas.nutrition import (
-    MealPlanResponse,
-    MealResponse,
-    MealLogCreate,
-    MealLogResponse,
-    MealPlanGenerationResponse,
-)
+from app.models.nutrition import MealPlan, Meal, MealItem, Food, MealLog
 from app.services.nutrition_service import NutritionService
 
 router = APIRouter()
 nutrition_service = NutritionService()
 
-@router.post("/nutrition/generate", response_model=MealPlanResponse)
+def serialize_meal_plan(plan: MealPlan, db: Session) -> dict:
+    meals_data = []
+    meals = db.query(Meal).filter(Meal.meal_plan_id == plan.id).all()
+    
+    for m in meals:
+        items_data = []
+        meal_items = db.query(MealItem).filter(MealItem.meal_id == m.id).order_by(MealItem.order_index).all()
+        
+        for mi in meal_items:
+            food = db.query(Food).filter(Food.id == mi.food_id_or_recipe_id).first() if not mi.is_recipe else None
+            items_data.append({
+                "id": mi.id,
+                "food_id_or_recipe_id": mi.food_id_or_recipe_id,
+                "is_recipe": mi.is_recipe,
+                "quantity_g": mi.quantity_g,
+                "order_index": mi.order_index,
+                "food": {
+                    "id": food.id,
+                    "name": food.name,
+                    "calories_per_100g": food.calories_per_100g,
+                    "protein_g": food.protein_g,
+                    "carbs_g": food.carbs_g,
+                    "fat_g": food.fat_g,
+                    "category": food.category.value if food.category else None,
+                } if food else None,
+            })
+        
+        meals_data.append({
+            "id": m.id,
+            "meal_plan_id": m.meal_plan_id,
+            "meal_type": m.meal_type.value if m.meal_type else None,
+            "day_of_week": m.day_of_week,
+            "meal_items": items_data,
+            "created_at": m.created_at.isoformat() if m.created_at else None,
+        })
+    
+    return {
+        "id": plan.id,
+        "user_id": plan.user_id,
+        "daily_calorie_target": plan.daily_calorie_target,
+        "macros_target": plan.macros_target,
+        "version": plan.version,
+        "meals": meals_data,
+        "created_at": plan.created_at.isoformat() if plan.created_at else None,
+    }
+
+@router.post("/nutrition/generate")
 async def generate_meal_plan(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     try:
         plan = nutrition_service.generate_meal_plan(db=db, user_id=current_user.id)
-        db.refresh(plan)
-        return plan
+        return serialize_meal_plan(plan, db)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
-@router.get("/nutrition/active", response_model=Optional[MealPlanResponse])
+@router.get("/nutrition/active")
 async def get_active_meal_plan(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     plan = nutrition_service.get_active_plan(db=db, user_id=current_user.id)
-    return plan
+    if not plan:
+        return None
+    return serialize_meal_plan(plan, db)
 
-@router.get("/nutrition/today", response_model=List[MealResponse])
+@router.get("/nutrition/today")
 async def get_today_meals(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     meals = nutrition_service.get_today_meals(db=db, user_id=current_user.id)
-    return meals
+    result = []
+    for m in meals:
+        items_data = []
+        meal_items = db.query(MealItem).filter(MealItem.meal_id == m.id).order_by(MealItem.order_index).all()
+        for mi in meal_items:
+            food = db.query(Food).filter(Food.id == mi.food_id_or_recipe_id).first() if not mi.is_recipe else None
+            items_data.append({
+                "id": mi.id,
+                "food_id_or_recipe_id": mi.food_id_or_recipe_id,
+                "is_recipe": mi.is_recipe,
+                "quantity_g": mi.quantity_g,
+                "order_index": mi.order_index,
+                "food": {
+                    "id": food.id,
+                    "name": food.name,
+                    "calories_per_100g": food.calories_per_100g,
+                    "protein_g": food.protein_g,
+                    "carbs_g": food.carbs_g,
+                    "fat_g": food.fat_g,
+                } if food else None,
+            })
+        result.append({
+            "id": m.id,
+            "meal_plan_id": m.meal_plan_id,
+            "meal_type": m.meal_type.value if m.meal_type else None,
+            "day_of_week": m.day_of_week,
+            "meal_items": items_data,
+        })
+    return result
 
-@router.post("/nutrition/log", response_model=MealLogResponse)
+@router.post("/nutrition/log")
 async def log_meal(
-    log_data: MealLogCreate,
+    log_data: dict,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -59,22 +126,22 @@ async def log_meal(
         log = nutrition_service.log_meal(
             db=db,
             user_id=current_user.id,
-            meal_id=log_data.meal_id,
-            meal_type=log_data.meal_type,
-            freeform_description=log_data.freeform_description,
-            photo_url=log_data.photo_url,
-            estimated_calories=log_data.estimated_calories,
-            estimated_macros=log_data.estimated_macros,
-            confirmed_by_user=log_data.confirmed_by_user
+            meal_id=log_data.get("meal_id"),
+            meal_type=log_data.get("meal_type"),
+            freeform_description=log_data.get("freeform_description"),
+            photo_url=log_data.get("photo_url"),
+            estimated_calories=log_data.get("estimated_calories"),
+            estimated_macros=log_data.get("estimated_macros"),
+            confirmed_by_user=log_data.get("confirmed_by_user", False)
         )
-        return log
+        return {"id": log.id, "message": "Refeição registrada!"}
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
 @router.post("/nutrition/estimate-meal")
 async def estimate_meal_from_photo(
     description: str,
-    current_user: User = Depends(require_plan_type("premium")),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     try:
