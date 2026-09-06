@@ -3,7 +3,7 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql://formaplus_front_user:BdhZG592UiIC1S0f4plsjp7LAKH6Zy5m@dpg-dae4vpgu01pc73d4du5g-a/formaplus_front"
+    DATABASE_URL: str = "postgresql://formaplus_front_user:BdhZG592UiIClS0f4plsjp7LAKH6Zy5m@dpg-dae4vpgu01pc73d4du5g-a.oregon-postgres.render.com/formaplus_front"
     
     # Security
     SECRET_KEY: str = "change-me-in-production"
@@ -51,9 +51,4 @@ class Settings(BaseSettings):
         env_file = ".env"
         case_sensitive = True
 
-_settings = Settings()
-
-if _settings.DATABASE_URL.startswith("sqlite"):
-    _settings.DATABASE_URL = "postgresql://formaplus_front_user:BdhZG592UiIC1S0f4plsjp7LAKH6Zy5m@dpg-dae4vpgu01pc73d4du5g-a/formaplus_front"
-
-settings = _settings
+settings = Settings()
