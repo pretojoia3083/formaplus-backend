@@ -24,7 +24,7 @@ workout_service = WorkoutService()
 
 @router.post("/workouts/generate", response_model=WorkoutPlanResponse)
 async def generate_workout_plan(
-    current_user: User = Depends(require_plan_type("pro")),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     try:

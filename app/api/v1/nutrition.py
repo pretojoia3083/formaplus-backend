@@ -21,7 +21,7 @@ nutrition_service = NutritionService()
 
 @router.post("/nutrition/generate", response_model=MealPlanResponse)
 async def generate_meal_plan(
-    current_user: User = Depends(require_plan_type("pro")),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     try:
